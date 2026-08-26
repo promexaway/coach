@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Pro - Nutriólogo + Entrenador Profesional</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2c3e50;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a2947 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #3d5a73 100%);
+            padding: 40px 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+        }
+        
+        .header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        
+        .tabs-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tab-btn {
+            padding: 10px 18px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid var(--border);
+            color: var(--text-light);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            border-color: var(--secondary);
+            background: rgba(139, 92, 246, 0.2);
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--secondary) 0%, #a78bfa 100%);
+            color: white;
+            border-color: var(--secondary);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .page { display: none; animation: fadeInUp 0.5s ease-out; }
+        .page.active { display: block; }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(51, 65, 85, 0.5) 100%);
+            border: 1px solid var(--border);
+            padding: 25px;
+            margin: 15px 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: var(--secondary);
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
+        }
+        
+        .btn {
+            padding: 11px 22px;
+            background: linear-gradient(135deg, var(--secondary) 0%, #a78bfa 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(6, 182, 212, 0.2);
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(6, 182, 212, 0.3);
+            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .btn-block { width: 100%; margin: 10px 0; }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); 
+            gap: 10px; 
+            margin: 15px 0; 
+        }
+        
+        .grid-item {
+            padding: 12px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+            transition: all 0.3s ease;
+        }
+        
+        .grid-item:hover {
+            border-color: var(--secondary);
+            background: rgba(139, 92, 246, 0.15);
+            transform: translateY(-3px);
+        }
+        
+        .grid-item.active {
+            background: linear-gradient(135deg, var(--secondary) 0%, #a78bfa 100%);
+            border-color: var(--secondary);
+            color: white;
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .grid-item.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+        }
+        
+        .stat-box .value {
+            font-size: 38px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-box .label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        h2 { font-size: 26px; margin: 20px 0 15px 0; color: var(--secondary); font-weight: 800; }
+        h3 { font-size: 14px; margin: 15px 0 10px 0; color: var(--accent); font-weight: 700; }
+        
+        .input-group {
+            margin: 15px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            font-weight: 700;
+            font-size: 11px;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 11px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background: rgba(139, 92, 246, 0.15);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+        
+        .exercise {
+            background: rgba(139, 92, 246, 0.1);
+            padding: 15px;
+            margin: 12px 0;
+            border-left: 4px solid var(--secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        
+        .exercise h4 {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .exercise-details {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin: 8px 0;
+            font-weight: 600;
+        }
+        
+        .alt-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        
+        .alt-btn {
+            padding: 6px 10px;
+            background: rgba(6, 182, 212, 0.15);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .alt-btn:hover {
+            background: var(--accent);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .meal {
+            padding: 10px;
+            background: rgba(6, 182, 212, 0.1);
+            margin: 6px 0;
+            border-left: 3px solid var(--secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .meal:hover {
+            background: rgba(6, 182, 212, 0.15);
+            transform: translateX(3px);
+        }
+        
+        .meal-cal {
+            color: var(--secondary);
+            font-weight: 800;
+            font-size: 12px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(139, 92, 246, 0.3);
+            color: var(--accent);
+            border: 1px solid var(--secondary);
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 800;
+            margin: 3px 3px 3px 0;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.15);
+            border-left: 4px solid var(--danger);
+            color: #fca5a5;
+        }
+        
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.15);
+            border-left: 4px solid var(--warning);
+            color: #fcd34d;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            border-left: 4px solid var(--success);
+            color: #86efac;
+        }
+        
+        .alert-info {
+            background: rgba(6, 182, 212, 0.15);
+            border-left: 4px solid var(--accent);
+            color: #22d3ee;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--secondary);
+        }
+        
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 11px;
+            border: 1px solid var(--border);
+        }
+        
+        .motivational-banner {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+            animation: slideInDown 0.6s ease;
+        }
+        
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .completion-message {
+            font-size: 18px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--success), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 32px; }
+            .tabs-nav { gap: 6px; }
+            .tab-btn { padding: 8px 12px; font-size: 11px; }
+            .grid { grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Coach Pro</h1>
+            <p>NUTRIÓLOGO + ENTRENADOR PROFESIONAL</p>
+        </div>
+
+        <div class="tabs-nav">
+            <button class="tab-btn active" onclick="coachApp.cambiarPag('inicio', 0)">🚀 INICIO</button>
+            <button class="tab-btn" onclick="coachApp.cambiarPag('dash', 1)">📊 DASHBOARD</button>
+            <button class="tab-btn" onclick="coachApp.cambiarPag('rut', 2)">🏋️ ENTRENAMIENTOS</button>
+            <button class="tab-btn" onclick="coachApp.cambiarPag('diet', 3)">🍽️ NUTRICIÓN</button>
+            <button class="tab-btn" onclick="coachApp.cambiarPag('progress', 4)">📈 PROGRESO</button>
+            <button class="tab-btn" onclick="coachApp.cambiarPag('ajustes', 5)">⚙️ AJUSTES</button>
+        </div>
+
+        <!-- INICIO -->
+        <div id="inicio" class="page active">
+            <div class="card">
+                <h2>👋 Tu Transformación Comienza Aquí</h2>
+                <p style="margin-bottom: 20px; font-size: 13px; line-height: 1.8; color: var(--text-muted);">
+                    Soy tu asistente profesional de nutrición y entrenamiento personalizado. Juntos crearemos un plan adaptado a tus objetivos 
+                    con recomendaciones basadas en ciencia 2024-2025 y validaciones de seguridad en cada paso.
+                </p>
+                
+                <div class="input-group">
+                    <label>👤 Nombre completo</label>
+                    <input type="text" id="inNombre" placeholder="Tu nombre">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="input-group">
+                        <label>🎂 Edad (años)</label>
+                        <input type="number" id="inEdad" placeholder="25">
+                    </div>
+                    <div class="input-group">
+                        <label>⚖️ Peso actual (kg)</label>
+                        <input type="number" id="inPeso" step="0.1" placeholder="70">
+                    </div>
+                    <div class="input-group">
+                        <label>📏 Altura (cm)</label>
+                        <input type="number" id="inAltura" placeholder="175">
+                    </div>
+                    <div class="input-group">
+                        <label>🎯 Peso meta (kg)</label>
+                        <input type="number" id="inMeta" step="0.1" placeholder="75">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>💪 Experiencia en entrenamiento</label>
+                    <select id="inExp">
+                        <option value="principiante">Principiante (0-6 meses)</option>
+                        <option value="intermedio">Intermedio (6-24 meses)</option>
+                        <option value="avanzado">Avanzado (+24 meses)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>🎯 ¿Cuál es tu objetivo?</label>
+                    <select id="inObj">
+                        <option value="perder">🔴 Perder grasa</option>
+                        <option value="ganar" selected>💪 Ganar músculo</option>
+                        <option value="mantener">⚖️ Mantenimiento</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>💰 Tipo de plan nutricional</label>
+                    <select id="inDietaTipo">
+                        <option value="economica">💰 Económica (básico)</option>
+                        <option value="estandar" selected>⭐ Estándar (recomendado)</option>
+                        <option value="premium">✨ Premium (completo)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>⏱️ ¿Cuánto tiempo disponible tienes por sesión?</label>
+                    <select id="inTiempoRutina">
+                        <option value="30">30 minutos</option>
+                        <option value="45">45 minutos</option>
+                        <option value="60" selected>60 minutos</option>
+                        <option value="90">90 minutos</option>
+                        <option value="120">120+ minutos</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>📅 ¿Cuántos días entrenas por semana?</label>
+                    <select id="inDias">
+                        <option>Elige cantidad</option>
+                        <option value="3">3 días</option>
+                        <option value="4">4 días</option>
+                        <option value="5">5 días</option>
+                        <option value="6">6 días</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-block" style="padding: 14px; font-size: 14px; margin-top: 20px;" onclick="coachApp.iniciarApp()">🚀 COMENZAR MI TRANSFORMACIÓN</button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dash" class="page">
+            <h2>📊 Tu Transformación</h2>
+            
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <div class="value" id="s-peso">--</div>
+                    <div class="label">PESO ACTUAL</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value" id="s-meta">--</div>
+                    <div class="label">META</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value" id="s-falta">--</div>
+                    <div class="label">POR ALCANZAR</div>
+                </div>
+                <div class="stat-box">
+                    <div class="value" id="s-imc">--</div>
+                    <div class="label">IMC</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Progreso General</h3>
+                <div class="progress-bar"><div class="progress-fill" id="progreso-bar"></div></div>
+                <div id="porcentaje-txt" style="text-align: center; font-weight: 700; color: var(--secondary); font-size: 12px; margin-top: 8px;"></div>
+            </div>
+
+            <div class="card">
+                <h3>💪 Cumplimiento de Hoy</h3>
+                <div class="progress-bar"><div class="progress-fill" id="cumplimiento-bar"></div></div>
+                <div id="cumplimiento-txt" style="text-align: center; font-weight: 700; color: var(--accent); font-size: 12px; margin-top: 8px;"></div>
+                <div id="motivacional" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="card">
+                <h3>🍽️ Nutrición del Día</h3>
+                <div style="font-size: 12px; line-height: 2.2;">
+                    <div><span style="color: var(--text-muted);">Calorías:</span> <strong style="color: var(--secondary);" id="cal-consumidas">0</strong> / <span id="cal-max">2800</span> kcal</div>
+                    <div><span style="color: var(--text-muted);">Proteína:</span> <strong style="color: var(--accent);" id="prot-actual">0</strong>g / <span id="prot-max">180</span>g</div>
+                    <div><span style="color: var(--text-muted);">Carbohidratos:</span> <strong style="color: var(--accent);" id="carb-actual">0</strong>g / <span id="carb-max">380</span>g</div>
+                    <div><span style="color: var(--text-muted);">Grasas:</span> <strong style="color: var(--accent);" id="grasa-actual">0</strong>g / <span id="grasa-max">78</span>g</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>👤 Tu Perfil</h3>
+                <div class="info-box" id="perfil-txt"></div>
+            </div>
+        </div>
+
+        <!-- ENTRENAMIENTOS -->
+        <div id="rut" class="page">
+            <h2>🏋️ Tu Plan de Entrenamientos</h2>
+            
+            <div class="card">
+                <h3>📅 Selecciona tu día</h3>
+                <div class="grid" id="grid-dias"></div>
+                
+                <div style="margin-top: 20px;">
+                    <h3>🔥 Elige tus grupos musculares</h3>
+                    <p style="font-size: 11px; color: var(--text-muted); margin: 10px 0;">
+                        Puedes seleccionar 1 o 2 grupos por día. El sistema te recomendará las mejores combinaciones para máximo rendimiento.
+                    </p>
+                    <div class="grid" id="grid-grupo-1"></div>
+                    
+                    <div id="grupo2-section" style="margin-top: 20px;">
+                        <label style="color: var(--accent); font-weight: 700; font-size: 12px;">Agregar 2do grupo muscular (opcional)</label>
+                        <div class="grid" id="grid-grupo-2"></div>
+                    </div>
+                </div>
+                
+                <div id="alerta-combinacion" style="margin-top: 15px;"></div>
+                <div id="ejer-mostrado" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- DIETA -->
+        <div id="diet" class="page">
+            <h2>🍽️ Plan Nutricional Personalizado</h2>
+            
+            <div class="card">
+                <div style="margin-bottom: 15px;">
+                    <button class="btn btn-secondary" onclick="coachApp.abrirCambiarObjetivo()">🎯 Cambiar objetivo</button>
+                    <button class="btn btn-secondary" style="margin-left: 10px;" onclick="coachApp.abrirRestaurar()">🔄 Restaurar original</button>
+                </div>
+                <div class="card" id="dieta-tipo"></div>
+            </div>
+
+            <div id="comidas-mostrado"></div>
+        </div>
+
+        <!-- PROGRESO -->
+        <div id="progress" class="page">
+            <h2>📈 Tu Progreso Semanal</h2>
+            
+            <div class="card">
+                <h3>📊 Ver por período</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <button class="btn btn-secondary" onclick="coachApp.mostrarProgresoPor('hoy')">📅 Hoy</button>
+                    <button class="btn btn-secondary" onclick="coachApp.mostrarProgresoPor('semana')">📆 Esta Semana</button>
+                    <button class="btn btn-secondary" onclick="coachApp.mostrarProgresoPor('mes')">🗓️ Este Mes</button>
+                    <button class="btn btn-secondary" onclick="coachApp.mostrarProgresoPor('total')">📊 Completo</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚖️ Registro Semanal de Peso</h3>
+                <div class="input-group">
+                    <label>Ingresa tu peso actual (kg)</label>
+                    <input type="number" id="inPesoSemanal" step="0.1" placeholder="Ej: 72.5">
+                </div>
+                <button class="btn btn-block" onclick="coachApp.registrarPesoSemanal()">📝 Registrar peso</button>
+            </div>
+
+            <div class="card">
+                <div id="estadisticas-progreso"></div>
+            </div>
+
+            <div class="chart-container">
+                <h3>📊 Gráfico de Evolución de Peso</h3>
+                <canvas id="progressChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+
+        <!-- AJUSTES -->
+        <div id="ajustes" class="page">
+            <h2>⚙️ Configuración</h2>
+            
+            <div class="card">
+                <h3>👤 Tu Perfil Actual</h3>
+                <div class="info-box" id="perfil-aj-txt"></div>
+            </div>
+
+            <div class="card">
+                <h3>🔐 Datos de Sesión</h3>
+                <button class="btn btn-secondary btn-block" onclick="coachApp.exportarDatos()">📥 Exportar mis datos</button>
+                <button class="btn btn-secondary btn-block" style="margin-top: 10px;" onclick="coachApp.abrirReiniciar()">🔴 Reiniciar aplicación</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ DATOS PROFESIONALES ============
+        const GRUPO_MUSCULAR = {
+            'Pecho': 'Empuje horizontal',
+            'Espalda': 'Tirón horizontal',
+            'Piernas': 'Cadena inferior',
+            'Glúteos': 'Potencia cadera',
+            'Brazos': 'Flexores/Extensores',
+            'Hombros': 'Deltoides',
+            'Core': 'Estabilidad',
+            'Pantorrillas': 'Soleos',
+            'Trapecio': 'Posterior',
+            'Antebrazos': 'Muñeca'
+        };
+
+        const COMBINACIONES_OPTIMAS = {
+            'Pecho': ['Tríceps', 'Core'],
+            'Espalda': ['Bíceps', 'Trapecio'],
+            'Piernas': ['Glúteos', 'Core'],
+            'Glúteos': ['Piernas', 'Core'],
+            'Brazos': ['Hombros', 'Antebrazos'],
+            'Hombros': ['Trapecio', 'Brazos'],
+            'Core': ['Cualquier grupo'],
+            'Pantorrillas': ['Piernas'],
+            'Trapecio': ['Espalda', 'Hombros'],
+            'Antebrazos': ['Brazos']
+        };
+
+        const COMBINACIONES_RIESGOSAS = [
+            ['Pecho', 'Espalda'],
+            ['Pecho', 'Hombros'],
+            ['Espalda', 'Piernas'],
+            ['Glúteos', 'Piernas']
+        ];
+
+        const EJERCICIOS_PROFESIONALES = {
+            'Pecho': {
+                precalentamiento: { n: 'Bicicleta estática', series: '5-10 min', alt: ['Caminadora', 'Remo', 'Elíptica'], video: 'calentamiento cardio' },
+                ejercicios: [
+                    { n: 'Press Banca Plano', series: 4, reps: 8, peso: 80, alt: ['Dumbbell Press', 'Smith Machine'], video: 'press banca técnica', aparato: 'Banco/Barra' },
+                    { n: 'Press Inclinado', series: 3, reps: 10, peso: 70, alt: ['Incline Dumbbell', 'Machine Press'], video: 'press inclinado', aparato: 'Banco/Mancuernas' },
+                    { n: 'Aperturas en Banco', series: 3, reps: 12, peso: 25, alt: ['Cable Crossover', 'Pec Deck'], video: 'aperturas pecho', aparato: 'Máquina' },
+                    { n: 'Fondos en Paralelas', series: 3, reps: 10, peso: 0, alt: ['Fondos asistido', 'Machine Dips'], video: 'fondos técnica', aparato: 'Peso corporal' }
+                ],
+                enfriamiento: { n: 'Caminata lenta', series: '5-10 min', alt: ['Bici lenta', 'Stretching'], video: 'enfriamiento' }
+            },
+            'Espalda': {
+                precalentamiento: { n: 'Remo', series: '5-10 min', alt: ['Bicicleta', 'Caminadora'], video: 'calentamiento cardio' },
+                ejercicios: [
+                    { n: 'Peso Muerto', series: 4, reps: 8, peso: 120, alt: ['Sumo Deadlift', 'Trap Bar'], video: 'peso muerto forma', aparato: 'Barra/Pesos' },
+                    { n: 'Remo con Barra', series: 4, reps: 10, peso: 80, alt: ['Remo Mancuerna', 'T-Bar'], video: 'remo barra', aparato: 'Barra' },
+                    { n: 'Lat Pulldown', series: 3, reps: 12, peso: 70, alt: ['Pull-ups', 'Asistido'], video: 'lat pulldown', aparato: 'Máquina' },
+                    { n: 'Remo Máquina', series: 3, reps: 12, peso: 80, alt: ['Remo Cable', 'Horizontal'], video: 'remo máquina', aparato: 'Máquina' }
+                ],
+                enfriamiento: { n: 'Caminata', series: '5-10 min', alt: ['Elíptica lenta'], video: 'enfriamiento' }
+            },
+            'Piernas': {
+                precalentamiento: { n: 'Elíptica', series: '5-10 min', alt: ['Bicicleta', 'Caminadora'], video: 'calentamiento piernas' },
+                ejercicios: [
+                    { n: 'Sentadilla', series: 4, reps: 10, peso: 100, alt: ['Front Squat', 'Goblet Squat'], video: 'sentadilla segura', aparato: 'Barra/Rack' },
+                    { n: 'Leg Press', series: 4, reps: 12, peso: 200, alt: ['Hack Squat', 'V-Squat'], video: 'leg press', aparato: 'Máquina' },
+                    { n: 'Extensión Cuádriceps', series: 3, reps: 12, peso: 80, alt: ['Sissy Squat'], video: 'extensión cuádriceps', aparato: 'Máquina' },
+                    { n: 'Curl Isquios', series: 3, reps: 12, peso: 70, alt: ['Lying Curl', 'Standing'], video: 'curl isquios', aparato: 'Máquina' }
+                ],
+                enfriamiento: { n: 'Caminata lenta', series: '5-10 min', alt: ['Estiramientos'], video: 'enfriamiento' }
+            },
+            'Glúteos': {
+                precalentamiento: { n: 'Bicicleta', series: '5 min', alt: ['Caminadora'], video: 'calentamiento glúteos' },
+                ejercicios: [
+                    { n: 'Hip Thrust', series: 4, reps: 10, peso: 90, alt: ['Máquina Glúteos', 'Single Leg'], video: 'hip thrust', aparato: 'Banco/Barra' },
+                    { n: 'Sentadilla Búlgara', series: 3, reps: 12, peso: 30, alt: ['Zancadas', 'Sled Push'], video: 'sentadilla búlgara', aparato: 'Banco/Mancuernas' },
+                    { n: 'Abductora Máquina', series: 3, reps: 15, peso: 100, alt: ['Cable Abduction'], video: 'abductora', aparato: 'Máquina' },
+                    { n: 'Patada Glúteos Cable', series: 3, reps: 15, peso: 20, alt: ['Máquina patadas'], video: 'patadas glúteos', aparato: 'Cable' }
+                ],
+                enfriamiento: { n: 'Caminata', series: '5 min', alt: ['Estiramientos'], video: 'enfriamiento' }
+            },
+            'Brazos': {
+                precalentamiento: { n: 'Bicicleta', series: '5 min', alt: ['Remo'], video: 'calentamiento' },
+                ejercicios: [
+                    { n: 'Curl Barra', series: 4, reps: 10, peso: 40, alt: ['Curl Mancuerna', 'Machine'], video: 'curl barra', aparato: 'Barra' },
+                    { n: 'Press Francés', series: 3, reps: 10, peso: 30, alt: ['Dips', 'Rope Extension'], video: 'press francés', aparato: 'Barra/Peso' },
+                    { n: 'Curl Predicador', series: 3, reps: 12, peso: 25, alt: ['Máquina'], video: 'curl predicador', aparato: 'Banco' },
+                    { n: 'Extensión Tríceps Cable', series: 3, reps: 12, peso: 30, alt: ['Rope', 'Barra V'], video: 'extensión tríceps', aparato: 'Cable' }
+                ],
+                enfriamiento: { n: 'Estiramientos', series: '5 min', alt: ['Caminata'], video: 'enfriamiento' }
+            },
+            'Hombros': {
+                precalentamiento: { n: 'Remo', series: '5 min', alt: ['Bicicleta'], video: 'calentamiento' },
+                ejercicios: [
+                    { n: 'Press Militar', series: 4, reps: 8, peso: 50, alt: ['Dumbbell Press', 'Machine'], video: 'press militar', aparato: 'Barra/Pesos' },
+                    { n: 'Elevación Lateral', series: 3, reps: 12, peso: 12, alt: ['Cable', 'Machine'], video: 'elevación lateral', aparato: 'Mancuernas' },
+                    { n: 'Elevación Frontal', series: 3, reps: 12, peso: 15, alt: ['Cable', 'Plate'], video: 'elevación frontal', aparato: 'Mancuernas' },
+                    { n: 'Face Pulls', series: 3, reps: 15, peso: 20, alt: ['Reverse Fly', 'Máquina'], video: 'face pulls', aparato: 'Cable' }
+                ],
+                enfriamiento: { n: 'Estiramientos', series: '5 min', alt: ['Caminata'], video: 'enfriamiento' }
+            },
+            'Core': {
+                precalentamiento: { n: 'Movilidad dinámica', series: '5 min', alt: ['Stretching'], video: 'movilidad core' },
+                ejercicios: [
+                    { n: 'Plancha Frontal', series: 3, reps: '45 seg', peso: 0, alt: ['Dinámica', 'Elevada'], video: 'plancha', aparato: 'Peso corporal' },
+                    { n: 'Crunch Máquina', series: 3, reps: 15, peso: 60, alt: ['Decline', 'Cable'], video: 'crunch máquina', aparato: 'Máquina' },
+                    { n: 'Leg Raises', series: 3, reps: 12, peso: 0, alt: ['Colgante', 'Banco'], video: 'leg raises', aparato: 'Barra/Banco' },
+                    { n: 'Woodchops Cable', series: 3, reps: 15, peso: 15, alt: ['Mancuerna', 'Medicine Ball'], video: 'woodchops', aparato: 'Cable' }
+                ],
+                enfriamiento: { n: 'Stretching', series: '5 min', alt: ['Respiración'], video: 'enfriamiento' }
+            },
+            'Pantorrillas': {
+                precalentamiento: { n: 'Saltos ligeros', series: '2 min', alt: ['Caminata'], video: 'calentamiento' },
+                ejercicios: [
+                    { n: 'Elevación Talones Máquina', series: 4, reps: 15, peso: 100, alt: ['Plataforma', 'Smith'], video: 'elevación talones', aparato: 'Máquina' },
+                    { n: 'Elevación Pantorrilla Sentado', series: 3, reps: 20, peso: 60, alt: ['Máquina'], video: 'elevación sentado', aparato: 'Máquina' },
+                    { n: 'Elevación Talones Escalón', series: 3, reps: 15, peso: 0, alt: ['Con mancuernas'], video: 'pantorrillas escalón', aparato: 'Escalón' }
+                ],
+                enfriamiento: { n: 'Estiramientos', series: '5 min', alt: ['Caminata'], video: 'enfriamiento' }
+            },
+            'Trapecio': {
+                precalentamiento: { n: 'Encogimientos ligeros', series: '2 min', alt: ['Movilidad'], video: 'calentamiento' },
+                ejercicios: [
+                    { n: 'Encogimiento Hombros Barra', series: 4, reps: 10, peso: 100, alt: ['Mancuernas', 'Machine'], video: 'encogimiento barra', aparato: 'Barra' },
+                    { n: 'Remo Alto T-Bar', series: 3, reps: 10, peso: 80, alt: ['Barra EZ', 'Dumbbell'], video: 'remo alto', aparato: 'T-Bar' },
+                    { n: 'Encogimiento Smith Machine', series: 3, reps: 12, peso: 100, alt: ['Machine'], video: 'encogimiento smith', aparato: 'Smith' }
+                ],
+                enfriamiento: { n: 'Estiramientos', series: '5 min', alt: ['Caminata'], video: 'enfriamiento' }
+            },
+            'Antebrazos': {
+                precalentamiento: { n: 'Rotaciones muñeca', series: '2 min', alt: ['Movilidad'], video: 'calentamiento' },
+                ejercicios: [
+                    { n: 'Curl Muñeca Barra', series: 3, reps: 15, peso: 20, alt: ['Mancuernas'], video: 'curl muñeca', aparato: 'Barra' },
+                    { n: 'Reverse Curl', series: 3, reps: 12, peso: 25, alt: ['Mancuernas'], video: 'reverse curl', aparato: 'Barra' },
+                    { n: 'Extensión Muñeca', series: 3, reps: 15, peso: 15, alt: ['Mancuernas'], video: 'extensión muñeca', aparato: 'Barra' }
+                ],
+                enfriamiento: { n: 'Estiramientos', series: '5 min', alt: ['Caminata'], video: 'enfriamiento' }
+            }
+        };
+
+        const ALIMENTOS_POR_DIETA = {
+            'economica': {
+                desayuno: [
+                    { nombre: '2 Huevos + Pan integral', kcal: 320, prot: 18, carbs: 30, grasas: 12, detalles: '2 huevos (155cal) + 2 rebanadas pan (160cal)' },
+                    { nombre: 'Avena + Leche + Plátano', kcal: 350, prot: 12, carbs: 52, grasas: 8, detalles: '1 taza avena cocida (150cal) + 1 taza leche (150cal) + plátano (105cal)' },
+                    { nombre: 'Quesadillas de queso', kcal: 380, prot: 16, carbs: 42, grasas: 14, detalles: '2 quesadillas (2 tortillas + 100g queso oaxaca)' },
+                    { nombre: 'Chilaquiles simples', kcal: 340, prot: 14, carbs: 48, grasas: 10, detalles: 'Tortillas fritas + salsa + poco queso' }
+                ],
+                colacion1: [
+                    { nombre: 'Plátano', kcal: 105, prot: 1, carbs: 27, grasas: 0, detalles: '1 plátano mediano' },
+                    { nombre: 'Manzana + Cacahuates', kcal: 110, prot: 4, carbs: 18, grasas: 6, detalles: '1 manzana + 15g cacahuates' },
+                    { nombre: 'Yogurt natural', kcal: 100, prot: 6, carbs: 15, grasas: 2, detalles: '1 taza yogurt natural 150ml' },
+                    { nombre: 'Tortilla + Queso', kcal: 95, prot: 6, carbs: 12, grasas: 4, detalles: '1 tortilla + 30g queso' }
+                ],
+                almuerzo: [
+                    { nombre: 'Pollo + Arroz + Frijoles', kcal: 420, prot: 32, carbs: 52, grasas: 8, detalles: '150g pechuga de pollo + 1 taza arroz cocido + 1/2 taza frijoles' },
+                    { nombre: 'Carne de res + Papa + Ensalada', kcal: 450, prot: 28, carbs: 55, grasas: 12, detalles: '120g carne molida + 1 papa grande + ensalada' },
+                    { nombre: 'Atún en agua + Arroz', kcal: 380, prot: 26, carbs: 48, grasas: 8, detalles: '150g atún en agua + 1 taza arroz + tomate' },
+                    { nombre: 'Guiso de res con verduras', kcal: 400, prot: 30, carbs: 45, grasas: 10, detalles: '150g res guisada + papa + chile + cebolla' }
+                ],
+                colacion2: [
+                    { nombre: 'Queso + Pan tostado', kcal: 105, prot: 8, carbs: 14, grasas: 4, detalles: '50g queso oaxaca + 1 pan tostado' },
+                    { nombre: 'Frutas variadas', kcal: 90, prot: 1, carbs: 23, grasas: 0, detalles: 'Naranja + melón + manzana (mezclado)' },
+                    { nombre: 'Yogurt + Granola', kcal: 140, prot: 6, carbs: 22, grasas: 4, detalles: '150g yogurt + 30g granola básica' },
+                    { nombre: 'Huevo cocido', kcal: 78, prot: 6, carbs: 1, grasas: 5, detalles: '1 huevo cocido con sal' }
+                ],
+                cena: [
+                    { nombre: 'Pollo guisado + Verduras', kcal: 340, prot: 28, carbs: 35, grasas: 8, detalles: '120g pollo + papa + nopales + chile' },
+                    { nombre: 'Sopa de verduras + Queso', kcal: 280, prot: 18, carbs: 38, grasas: 6, detalles: 'Sopa con papa, zanahoria, queso rallado' },
+                    { nombre: 'Huevos rancheros', kcal: 320, prot: 20, carbs: 42, grasas: 10, detalles: '2 huevos + tortillas + salsa + frijoles' },
+                    { nombre: 'Caldo de pollo', kcal: 250, prot: 24, carbs: 28, grasas: 6, detalles: 'Caldo con pollo, papa, verduras' }
+                ]
+            },
+            'estandar': {
+                desayuno: [
+                    { nombre: 'Avena + Proteína + Huevos', kcal: 480, prot: 32, carbs: 55, grasas: 12, detalles: '1 taza avena + 2 huevos + leche 200ml' },
+                    { nombre: 'Pancakes + Fruta + Yogurt', kcal: 500, prot: 28, carbs: 65, grasas: 10, detalles: '2 pancakes + plátano + 150g yogurt griego' },
+                    { nombre: 'Arepa + Queso + Jamón', kcal: 450, prot: 26, carbs: 52, grasas: 14, detalles: '1 arepa + 60g queso fresco + 40g jamón pavo' },
+                    { nombre: 'Huevos revueltos con pan integral', kcal: 420, prot: 24, carbs: 48, grasas: 14, detalles: '3 huevos + 2 rebanadas pan integral + aguacate' }
+                ],
+                colacion1: [
+                    { nombre: 'Almendras + Manzana', kcal: 145, prot: 10, carbs: 18, grasas: 8, detalles: '30g almendras (23 unidades) + 1 manzana' },
+                    { nombre: 'Yogurt griego + Granola', kcal: 160, prot: 12, carbs: 20, grasas: 6, detalles: '150g yogurt griego + 40g granola' },
+                    { nombre: 'Queso cottage + Frutos rojos', kcal: 140, prot: 14, carbs: 16, grasas: 4, detalles: '100g queso cottage + fresas/arándanos' },
+                    { nombre: 'Barrita proteica', kcal: 150, prot: 12, carbs: 18, grasas: 5, detalles: '1 barrita proteica balanceada' }
+                ],
+                almuerzo: [
+                    { nombre: 'Pechuga + Arroz integral + Brócoli', kcal: 520, prot: 42, carbs: 60, grasas: 12, detalles: '180g pechuga de pollo + 1 taza arroz integral + 1.5 tazas brócoli' },
+                    { nombre: 'Pescado blanco + Camote + Ensalada', kcal: 480, prot: 40, carbs: 58, grasas: 10, detalles: '150g tilapia + 1 camote + lechuga/tomate/pepino' },
+                    { nombre: 'Carne magra + Papa + Verduras', kcal: 510, prot: 38, carbs: 62, grasas: 12, detalles: '140g res magra + 1 papa grande + rajas' },
+                    { nombre: 'Atún + Pasta integral + Tomate', kcal: 490, prot: 36, carbs: 64, grasas: 8, detalles: '150g atún en agua + 1 taza pasta cocida + salsa tomate' }
+                ],
+                colacion2: [
+                    { nombre: 'Fruta + Queso', kcal: 155, prot: 10, carbs: 20, grasas: 6, detalles: 'Pera + 50g queso oaxaca' },
+                    { nombre: 'Smoothie proteico', kcal: 180, prot: 15, carbs: 22, grasas: 5, detalles: 'Proteína polvo + leche + plátano' },
+                    { nombre: 'Humus + Zanahoria', kcal: 145, prot: 8, carbs: 18, grasas: 6, detalles: '80g hummus + 100g zanahoria cruda' },
+                    { nombre: 'Nueces + Manzana', kcal: 160, prot: 6, carbs: 20, grasas: 8, detalles: '30g nueces + 1 manzana mediana' }
+                ],
+                cena: [
+                    { nombre: 'Pollo a la parrilla + Ensalada + Papa', kcal: 480, prot: 38, carbs: 58, grasas: 12, detalles: '150g pechuga a la parrilla + lechuga/jitomate + 1 papa mediana' },
+                    { nombre: 'Pescado al horno + Verduras roastizadas', kcal: 450, prot: 35, carbs: 50, grasas: 12, detalles: '140g salmón + brócoli/coliflor/zanahoria al horno' },
+                    { nombre: 'Guiso de pollo con nopales', kcal: 420, prot: 32, carbs: 52, grasas: 10, detalles: '140g pollo + 200g nopales + chile + cebolla' },
+                    { nombre: 'Camarones + Arroz + Verduras', kcal: 470, prot: 36, carbs: 55, grasas: 11, detalles: '150g camarones + 1 taza arroz + pimiento/cebolla' }
+                ]
+            },
+            'premium': {
+                desayuno: [
+                    { nombre: 'Huevos + Salmón + Aguacate + Pan integral', kcal: 580, prot: 38, carbs: 72, grasas: 18, detalles: '3 huevos + 60g salmón ahumado + 1/2 aguacate + 2 pan integral' },
+                    { nombre: 'Smoothie bowl premium', kcal: 560, prot: 32, carbs: 75, grasas: 14, detalles: 'Proteína + plátano + frutos rojos + granola premium + coco + almendras' },
+                    { nombre: 'Pancakes gourmet + Frutos rojos + Yogurt', kcal: 600, prot: 36, carbs: 78, grasas: 16, detalles: '3 pancakes integrales + arándanos + fresas + 200g yogurt griego' },
+                    { nombre: 'Huevos benedictinos + Salmón', kcal: 580, prot: 38, carbs: 65, grasas: 20, detalles: '2 huevos + 70g salmón + 2 english muffins + salsa holandesa light' }
+                ],
+                colacion1: [
+                    { nombre: 'Trail mix premium + Fruta', kcal: 195, prot: 14, carbs: 25, grasas: 10, detalles: '40g almendras + nueces + arándanos + manzana' },
+                    { nombre: 'Proteína + Frutas premium', kcal: 200, prot: 18, carbs: 24, grasas: 7, detalles: 'Barrita premium + kiwi + frambuesa + nuez' },
+                    { nombre: 'Queso brie + Manzana + Almendra', kcal: 190, prot: 12, carbs: 22, grasas: 9, detalles: '50g queso brie + manzana gourmet + 20g almendras' },
+                    { nombre: 'Smoothie verde proteico', kcal: 200, prot: 16, carbs: 24, grasas: 6, detalles: 'Proteína + espinaca + plátano + leche de almendra' }
+                ],
+                almuerzo: [
+                    { nombre: 'Salmón + Quinoa + Brócoli', kcal: 640, prot: 48, carbs: 72, grasas: 20, detalles: '180g salmón fresco + 1 taza quinoa cocida + 2 tazas brócoli' },
+                    { nombre: 'Res Wagyu + Sweet potato + Ensalada gourmet', kcal: 650, prot: 50, carbs: 68, grasas: 22, detalles: '150g res Wagyu + 1 sweet potato + lechuga/rúcula/tomate cherry' },
+                    { nombre: 'Filete de pez espada + Fideos integrales + Espárragos', kcal: 620, prot: 46, carbs: 70, grasas: 18, detalles: '160g pez espada + 1.5 tazas fideos integrales + 200g espárragos' },
+                    { nombre: 'Camarones jumbo + Arroz de coco + Verduras', kcal: 630, prot: 45, carbs: 75, grasas: 16, detalles: '180g camarones jumbo + arroz + coco + vegetales variados' }
+                ],
+                colacion2: [
+                    { nombre: 'Frutas premium + Proteína', kcal: 200, prot: 14, carbs: 26, grasas: 7, detalles: 'Mango + piña + proteína en polvo + coco' },
+                    { nombre: 'Smoothie gourmet post-entreno', kcal: 210, prot: 18, carbs: 28, grasas: 6, detalles: 'Proteína + plátano + mantequilla maní + leche' },
+                    { nombre: 'Queso ricotta + Miel + Frutos secos', kcal: 195, prot: 15, carbs: 24, grasas: 8, detalles: '120g ricotta + 1 cucharada miel + almendras/pistachos' },
+                    { nombre: 'Barrita energética premium', kcal: 200, prot: 16, carbs: 25, grasas: 7, detalles: 'Barrita orgánica de alta calidad' }
+                ],
+                cena: [
+                    { nombre: 'Salmón + Espárragos + Batata', kcal: 600, prot: 40, carbs: 70, grasas: 18, detalles: '160g salmón a la mantequilla + 250g espárragos + 1 batata' },
+                    { nombre: 'Pechuga orgánica + Verduras roastizadas', kcal: 580, prot: 42, carbs: 68, grasas: 16, detalles: '160g pechuga orgánica + brócoli/zanahoria/papas al horno con aceite oliva' },
+                    { nombre: 'Camarones + Fideos de berenjenas', kcal: 550, prot: 38, carbs: 65, grasas: 15, detalles: '150g camarones + fideos de berenjena + salsa blanca light' },
+                    { nombre: 'Filete premium + Ensalada gourmet', kcal: 600, prot: 44, carbs: 62, grasas: 18, detalles: '150g filete + rúcula/tomate cherry/queso parmesano/aceite oliva' }
+                ]
+            }
+        };
+
+        const GUISADOS_MEXICO = [
+            { nombre: 'Chilaquiles Rojos', cals: 450, proteina: 18, carbos: 45, grasas: 12 },
+            { nombre: 'Tacos de Pollo', cals: 480, proteina: 32, carbos: 40, grasas: 14 },
+            { nombre: 'Enchiladas Verdes', cals: 520, proteina: 28, carbos: 50, grasas: 16 },
+            { nombre: 'Pozole Rojo', cals: 480, proteina: 26, carbos: 52, grasas: 10 },
+            { nombre: 'Caldo de Pollo', cals: 320, proteina: 28, carbos: 20, grasas: 8 },
+            { nombre: 'Tamales de Rajas', cals: 380, proteina: 12, carbos: 48, grasas: 14 },
+            { nombre: 'Huevos Rancheros', cals: 420, proteina: 18, carbos: 35, grasas: 18 },
+            { nombre: 'Mole Poblano', cals: 580, proteina: 26, carbos: 58, grasas: 22 },
+            { nombre: 'Birria de Res', cals: 520, proteina: 40, carbos: 30, grasas: 18 },
+            { nombre: 'Quesadillas de Queso', cals: 450, proteina: 16, carbos: 42, grasas: 20 },
+            { nombre: 'Relleno Oaxaqueño', cals: 560, proteina: 24, carbos: 55, grasas: 20 },
+            { nombre: 'Flautas Doradas', cals: 490, proteina: 20, carbos: 48, grasas: 18 },
+            { nombre: 'Tinga de Pollo', cals: 420, proteina: 30, carbos: 35, grasas: 14 },
+            { nombre: 'Barbacoa', cals: 510, proteina: 42, carbos: 28, grasas: 16 },
+            { nombre: 'Carnitas', cals: 560, proteina: 38, carbos: 25, grasas: 28 },
+            { nombre: 'Chiles Rellenos', cals: 480, proteina: 20, carbos: 45, grasas: 16 },
+            { nombre: 'Carne Guisada', cals: 510, proteina: 38, carbos: 32, grasas: 18 },
+            { nombre: 'Rajas con Queso', cals: 400, proteina: 14, carbos: 38, grasas: 18 },
+            { nombre: 'Picadillo', cals: 490, proteina: 26, carbos: 42, grasas: 18 },
+            { nombre: 'Sopes', cals: 420, proteina: 16, carbos: 48, grasas: 14 },
+            { nombre: 'Chiles Poblanos Rellenos de Queso', cals: 400, proteina: 18, carbos: 30, grasas: 20 },
+            { nombre: 'Mofongo', cals: 480, proteina: 12, carbos: 60, grasas: 14 },
+            { nombre: 'Molotes', cals: 450, proteina: 14, carbos: 45, grasas: 18 },
+            { nombre: 'Ropa Vieja', cals: 440, proteina: 32, carbos: 35, grasas: 14 }
+        ];
+
+        const COLACIONES = {
+            'Almendras (30g)': 170,
+            'Plátano': 105,
+            'Yogurt griego (100g)': 80,
+            'Manzana': 95,
+            'Nueces (25g)': 185,
+            'Fresas (150g)': 50,
+            'Queso oaxaca (50g)': 190,
+            'Atún en agua (100g)': 95,
+            'Huevo cocido': 78,
+            'Palomitas sin sal (30g)': 110,
+            'Pera': 101,
+            'Champiñones crudos (100g)': 22,
+            'Zanahorias (100g)': 41,
+            'Tortilla de maíz': 52,
+            'Granola (40g)': 170,
+            'Cacahuates tostados (30g)': 166,
+            'Jicama (100g)': 39,
+            'Pepino': 15,
+            'Apio (100g)': 16,
+            'Kiwi': 61,
+            'Arándanos (100g)': 57,
+            'Queso cottage (100g)': 110,
+            'Proteína en polvo': 120,
+            'Barrita energética': 200
+        };
+
+        const MACROS_BY_OBJETIVO = {
+            'perder': { kcal: 1800, proteina_g_kg: 2.2, proteina_porc: 40, carbs_porc: 35, grasas_porc: 25 },
+            'ganar': { kcal: 2800, proteina_g_kg: 2.0, proteina_porc: 28, carbs_porc: 47, grasas_porc: 25 },
+            'mantener': { kcal: 2300, proteina_g_kg: 1.4, proteina_porc: 30, carbs_porc: 40, grasas_porc: 30 }
+        };
+
+        const FRASES_MOTIVACIONALES = [
+            '🔥 ¡Hoy fue ÉPICO! Sigue así',
+            '💪 ¡Eres imparable! Cada repetición cuenta',
+            '🏆 ¡Completaste como un campeón!',
+            '⚡ ¡La disciplina hoy, resultados mañana!',
+            '🚀 ¡Vas a lograrlo! Confía en el proceso',
+            '✨ ¡Excelente trabajo! Tu cuerpo te lo agradece',
+            '🎯 ¡Nada te detiene! Continúa así',
+            '💯 ¡Perfecto! Eres un guerrero del fitness'
+        ];
+
+        const PROTECCIONES_PESO = {
+            'principiante': { min: 20, max: 60 },
+            'intermedio': { min: 40, max: 100 },
+            'avanzado': { min: 60, max: 150 }
+        };
+
+        let datos = {
+            user: null,
+            dias: [],
+            diaActual: null,
+            grupoActual: [],
+            rutinasAlternativas: {},
+            ejerciciosCompletados: {},
+            colacionSeleccionada: {},
+            alimentosSeleccionados: {},
+            historialPeso: [],
+            pesosPorEjercicio: {},
+            seriesPorEjercicio: {},
+            periodoProg: 'semana',
+            chartInstance: null
+        };
+
+        const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        const DIAS_SHORT = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+        // ============ UTILIDADES ============
+        function showAlert(msg) {
+            if (typeof window !== 'undefined') alert(msg);
+        }
+
+        function getPrompt(msg, def) {
+            if (typeof window !== 'undefined') return prompt(msg, def || '');
+            return null;
+        }
+
+        function getConfirm(msg) {
+            if (typeof window !== 'undefined') return confirm(msg);
+            return false;
+        }
+
+        function calcularIMC(peso, altura) {
+            return (peso / ((altura / 100) ** 2)).toFixed(1);
+        }
+
+        // ============ APP PRINCIPAL ============
+        const coachApp = (() => {
+            return {
+                iniciarApp() {
+                    const nombre = document.getElementById('inNombre').value.trim();
+                    const edad = parseInt(document.getElementById('inEdad').value);
+                    const peso = parseFloat(document.getElementById('inPeso').value);
+                    const altura = parseInt(document.getElementById('inAltura').value);
+                    const meta = parseFloat(document.getElementById('inMeta').value);
+                    const exp = document.getElementById('inExp').value;
+                    const obj = document.getElementById('inObj').value;
+                    const dietaTipo = document.getElementById('inDietaTipo').value;
+                    const tiempoRutina = parseInt(document.getElementById('inTiempoRutina').value);
+                    const diasNum = parseInt(document.getElementById('inDias').value);
+
+                    if (!nombre || !edad || !peso || !altura || !meta || !diasNum) {
+                        showAlert('⚠️ Completa todos los campos');
+                        return;
+                    }
+
+                    if (edad < 16 || edad > 80) {
+                        showAlert('⚠️ La edad debe estar entre 16 y 80 años');
+                        return;
+                    }
+
+                    if (altura < 140 || altura > 220) {
+                        showAlert('⚠️ La altura debe estar entre 140 y 220 cm');
+                        return;
+                    }
+
+                    datos.user = { nombre, edad, peso, altura, meta, exp, obj, dietaTipo, tiempoRutina, imc: calcularIMC(peso, altura) };
+                    this.calcularMacros();
+                    datos.historialPeso = [{ fecha: new Date().toISOString().split('T')[0], peso: peso }];
+                    datos.dias = [];
+                    
+                    this.guardarLocal();
+                    this.cambiarPag('rut', 2);
+                    this.mostrarSeleccionDias(diasNum);
+                    showAlert(`✅ ¡Bienvenido ${nombre}!\nPlan: ${dietaTipo} | Tiempo: ${tiempoRutina}min | ${diasNum} días\n\nAhora selecciona tus días de entrenamiento`);
+                },
+
+                calcularMacros() {
+                    const obj = datos.user.obj;
+                    const peso = datos.user.peso;
+                    const config = MACROS_BY_OBJETIVO[obj];
+                    
+                    datos.user.kcal = config.kcal;
+                    datos.user.proteina = Math.round(peso * config.proteina_g_kg);
+                    datos.user.carbos = Math.round((config.kcal * config.carbs_porc / 100) / 4);
+                    datos.user.grasas = Math.round((config.kcal * config.grasas_porc / 100) / 9);
+                },
+
+                mostrarSeleccionDias(num) {
+                    let html = '<h3 style="margin-bottom: 15px;">Selecciona tus ' + num + ' días de entrenamiento</h3>';
+                    for (let i = 0; i <= 6; i++) {
+                        const sel = datos.dias.includes(i) ? 'active' : '';
+                        html += `<div class="grid-item ${sel}" onclick="coachApp.toggleDia(${i})">${DIAS_SHORT[i]}</div>`;
+                    }
+                    html += `<br><button class="btn btn-block" onclick="coachApp.guardarDias(${num})">✅ Confirmar ${num} días</button>`;
+                    document.getElementById('grid-dias').innerHTML = html;
+                },
+
+                toggleDia(d) {
+                    if (datos.dias.includes(d)) {
+                        datos.dias = datos.dias.filter(x => x !== d);
+                    } else {
+                        datos.dias.push(d);
+                    }
+                    const num = document.getElementById('inDias').value;
+                    this.mostrarSeleccionDias(num);
+                },
+
+                guardarDias(num) {
+                    if (datos.dias.length !== num) {
+                        showAlert(`⚠️ Selecciona exactamente ${num} días`);
+                        return;
+                    }
+                    datos.dias.sort((a, b) => a - b);
+                    this.guardarLocal();
+                    this.mostrarRutinas();
+                    this.mostrarDieta();
+                    this.mostrarDash();
+                    showAlert(`✅ ${num} días guardados. Configuración completada`);
+                },
+
+                mostrarRutinas() {
+                    let html = '';
+                    for (let i = 0; i <= 6; i++) {
+                        const activo = datos.dias.includes(i);
+                        const sel = datos.diaActual === i ? 'active' : '';
+                        const disabled = !activo ? 'disabled' : '';
+                        html += `<div class="grid-item ${sel} ${disabled}" onclick="if(${activo}) { coachApp.setDiaActual(${i}); }">${DIAS[i]}</div>`;
+                    }
+                    document.getElementById('grid-dias').innerHTML = html;
+
+                    html = '';
+                    for (let g in GRUPO_MUSCULAR) {
+                        html += `<div class="grid-item" onclick="coachApp.seleccionarGrupo1('${g}')">${g}</div>`;
+                    }
+                    document.getElementById('grid-grupo-1').innerHTML = html;
+                },
+
+                setDiaActual(d) {
+                    datos.diaActual = d;
+                    datos.grupoActual = [];
+                    this.mostrarRutinas();
+                    document.getElementById('alerta-combinacion').innerHTML = '';
+                    document.getElementById('ejer-mostrado').innerHTML = '';
+                },
+
+                seleccionarGrupo1(g) {
+                    datos.grupoActual = [g];
+                    this.mostrarGrupo2Opciones();
+                },
+
+                mostrarGrupo2Opciones() {
+                    const g1 = datos.grupoActual[0];
+                    const optimos = COMBINACIONES_OPTIMAS[g1] || [];
+                    let html = '<p style="font-size: 11px; color: var(--text-muted); margin: 10px 0;">✅ Grupos complementarios para ' + g1 + ':</p>';
+                    
+                    for (let g in GRUPO_MUSCULAR) {
+                        if (g === g1) continue;
+                        const esOptimo = optimos.includes(g);
+                        const esRiesgoso = COMBINACIONES_RIESGOSAS.some(par => 
+                            (par[0] === g1 && par[1] === g) || (par[1] === g1 && par[0] === g)
+                        );
+                        
+                        const estilo = esRiesgoso ? 'style="opacity: 0.4;"' : '';
+                        const badge = esOptimo ? ' ✅' : '';
+                        
+                        html += `<div class="grid-item" ${estilo} onclick="coachApp.validarCombinacion('${g}', '${g1}')">${g}${badge}</div>`;
+                    }
+                    html += `<br><button class="btn btn-secondary btn-block" style="margin-top: 10px;" onclick="coachApp.verRutina()">Ver Rutina: ${g1}</button>`;
+                    
+                    document.getElementById('grid-grupo-2').innerHTML = html;
+                },
+
+                validarCombinacion(g2, g1) {
+                    const esRiesgoso = COMBINACIONES_RIESGOSAS.some(par => 
+                        (par[0] === g1 && par[1] === g2) || (par[1] === g1 && par[0] === g2)
+                    );
+
+                    if (esRiesgoso) {
+                        const optimos = COMBINACIONES_OPTIMAS[g1] || [];
+                        const recomendados = optimos.slice(0, 2).join(', ') || 'Core o Accesorios';
+                        
+                        const alerta = `
+                        <div class="alert alert-danger">
+                            ⚠️ <strong>ALERTA PROFESIONAL</strong><br>
+                            Combinación: ${g1} + ${g2}<br><br>
+                            <strong>RIESGOS:</strong><br>
+                            → Fatiga del SNC muy alta<br>
+                            → Recuperación comprometida<br>
+                            → Riesgo de lesión aumentado<br>
+                            → Rendimiento deficiente<br><br>
+                            💡 <strong>RECOMENDACIÓN:</strong> ${recomendados}
+                        </div>`;
+                        
+                        document.getElementById('alerta-combinacion').innerHTML = alerta;
+                        return;
+                    }
+
+                    datos.grupoActual = [g1, g2];
+                    const alerta = `
+                    <div class="alert alert-success">
+                        ✅ Excelente combinación: ${g1} + ${g2}
+                        <br><span style="font-size: 10px;">Trabajo complementario y recuperación óptima</span>
+                    </div>`;
+                    document.getElementById('alerta-combinacion').innerHTML = alerta;
+                },
+
+                verRutina() {
+                    if (datos.diaActual === null) {
+                        showAlert('⚠️ Selecciona un día primero');
+                        return;
+                    }
+
+                    if (!datos.grupoActual.length) {
+                        showAlert('⚠️ Selecciona un grupo muscular');
+                        return;
+                    }
+
+                    let html = `<div class="card" style="margin-top: 20px; background: rgba(139, 92, 246, 0.05);">
+                        <h3>${DIAS[datos.diaActual]} - ${datos.grupoActual.join(' + ')}</h3>`;
+
+                    datos.grupoActual.forEach(grupo => {
+                        const rutina = EJERCICIOS_PROFESIONALES[grupo];
+                        if (!rutina) return;
+
+                        html += `<div style="margin-top: 20px;">
+                            <h4 style="color: var(--secondary); font-weight: 700; margin: 15px 0 10px 0; padding: 8px; background: rgba(139, 92, 246, 0.15); border-radius: 6px;">🔥 ${grupo}</h4>
+                            
+                            <div class="exercise">
+                                <h4>🏃 PRECALENTAMIENTO (${rutina.precalentamiento.series})</h4>
+                                <div class="exercise-details">${rutina.precalentamiento.n}</div>
+                                <div style="font-size: 10px; color: var(--text-muted); margin: 8px 0;">Alternativas:</div>
+                                <div class="alt-buttons">
+                                    ${rutina.precalentamiento.alt.map(a => `<button class="alt-btn">${a}</button>`).join('')}
+                                </div>
+                                <button class="btn" style="margin-top: 8px; font-size: 11px; padding: 6px 10px;" onclick="window.open('https://www.youtube.com/results?search_query=${rutina.precalentamiento.n} tutorial', '_blank')">🎥 Ver Video</button>
+                            </div>`;
+
+                        rutina.ejercicios.forEach((e, idx) => {
+                            const claveAlternativa = `${datos.diaActual}_${grupo}_${idx}`;
+                            const ejercicioActual = datos.rutinasAlternativas[claveAlternativa] || e.n;
+                            const completado = datos.ejerciciosCompletados[claveAlternativa] ? 'checked' : '';
+                            const pesoActual = datos.pesosPorEjercicio[claveAlternativa] || e.peso;
+                            const seriesActual = datos.seriesPorEjercicio?.[claveAlternativa]?.series || e.series;
+                            const repsActual = datos.seriesPorEjercicio?.[claveAlternativa]?.reps || e.reps;
+
+                            html += `<div class="exercise">
+                                <h4>💪 ${ejercicioActual}</h4>
+                                <div class="exercise-details">
+                                    <span class="badge" id="badge_series_${claveAlternativa}">${seriesActual}x${repsActual}</span>
+                                    <span class="badge" style="background: rgba(6, 182, 212, 0.3); color: var(--accent);">⚖️ ${pesoActual}kg</span>
+                                    <span class="badge">${e.aparato}</span>
+                                </div>
+                                
+                                <div style="font-size: 10px; color: var(--text-muted); margin: 10px 0;">📊 PERSONALIZAR:</div>
+                                <div style="display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap;">
+                                    <div style="display: flex; gap: 4px;">
+                                        <input type="number" id="series_${claveAlternativa}" value="${seriesActual}" min="1" max="6" style="width: 50px; padding: 6px; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--border); border-radius: 6px; color: var(--text-light);">
+                                        <span style="padding: 6px;">x</span>
+                                        <input type="number" id="reps_${claveAlternativa}" value="${repsActual}" min="1" max="30" style="width: 50px; padding: 6px; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--border); border-radius: 6px; color: var(--text-light);">
+                                    </div>
+                                    <input type="number" id="peso_${claveAlternativa}" value="${pesoActual}" step="2.5" style="width: 60px; padding: 6px; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--border); border-radius: 6px; color: var(--text-light);">
+                                    <button class="btn" style="padding: 6px 10px; font-size: 10px;" onclick="coachApp.actualizarEjercicio('${claveAlternativa}')">✓ Guardar</button>
+                                </div>
+                                
+                                <div style="font-size: 10px; color: var(--text-muted); margin: 10px 0;">Cambiar a alternativa:</div>
+                                <div class="alt-buttons">
+                                    ${e.alt.map(a => `<button class="alt-btn" onclick="coachApp.seleccionarAlternativa(${datos.diaActual}, '${grupo}', ${idx}, '${a}')">${a}</button>`).join('')}
+                                </div>
+                                
+                                <button class="btn" style="margin-top: 8px; font-size: 11px; padding: 6px 10px; width: 100%;" onclick="window.open('https://www.youtube.com/results?search_query=${ejercicioActual} tutorial', '_blank')">🎥 Ver Video: ${ejercicioActual}</button>
+                                
+                                <div style="margin-top: 10px;">
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" ${completado} onchange="coachApp.marcarEjercicio(this, '${claveAlternativa}')">
+                                        <span>Completado ✓</span>
+                                    </label>
+                                </div>
+                            </div>`;
+                        });
+
+                        html += `<div class="exercise">
+                            <h4>🧘 ENFRIAMIENTO (${rutina.enfriamiento.series})</h4>
+                            <div class="exercise-details">${rutina.enfriamiento.n}</div>
+                            <div style="font-size: 10px; color: var(--text-muted); margin: 8px 0;">Alternativas:</div>
+                            <div class="alt-buttons">
+                                ${rutina.enfriamiento.alt.map(a => `<button class="alt-btn">${a}</button>`).join('')}
+                            </div>
+                        </div>`;
+                    });
+
+                    html += '</div>';
+                    document.getElementById('ejer-mostrado').innerHTML = html;
+                },
+
+                actualizarEjercicio(clave) {
+                    const series = parseInt(document.getElementById('series_' + clave).value);
+                    const reps = parseInt(document.getElementById('reps_' + clave).value);
+                    const peso = parseFloat(document.getElementById('peso_' + clave).value);
+                    const exp = datos.user.exp;
+                    const limites = PROTECCIONES_PESO[exp];
+
+                    // Validar series
+                    if (series < 1 || series > 6) {
+                        showAlert('⚠️ Las series deben estar entre 1 y 6');
+                        return;
+                    }
+
+                    // Validar reps
+                    if (reps < 1 || reps > 30) {
+                        showAlert('⚠️ Las repeticiones deben estar entre 1 y 30');
+                        return;
+                    }
+
+                    // Validar peso
+                    if (peso < limites.min) {
+                        showAlert(`⚠️ SEGURIDAD: Para ${exp}, el mínimo es ${limites.min}kg`);
+                        return;
+                    } else if (peso > limites.max) {
+                        showAlert(`⚠️ SEGURIDAD: Para ${exp}, el máximo es ${limites.max}kg`);
+                        return;
+                    }
+
+                    // Guardar
+                    if (!datos.seriesPorEjercicio) datos.seriesPorEjercicio = {};
+                    datos.seriesPorEjercicio[clave] = { series, reps };
+                    datos.pesosPorEjercicio[clave] = peso;
+                    
+                    this.guardarLocal();
+                    this.verRutina();
+                    showAlert(`✅ ${series}x${reps} @ ${peso}kg guardado`);
+                },
+
+                actualizarPeso(clave) {
+                    this.actualizarEjercicio(clave);
+                },
+
+                seleccionarAlternativa(dia, grupo, idx, alternativa) {
+                    const claveAlternativa = `${dia}_${grupo}_${idx}`;
+                    datos.rutinasAlternativas[claveAlternativa] = alternativa;
+                    this.guardarLocal();
+                    this.verRutina();
+                    showAlert(`✅ Cambiaste a: ${alternativa}\n\nUsa el botón de video para ver la técnica correcta`);
+                },
+
+                marcarEjercicio(checkbox, clave) {
+                    if (checkbox.checked) {
+                        datos.ejerciciosCompletados[clave] = true;
+                    } else {
+                        delete datos.ejerciciosCompletados[clave];
+                    }
+                    this.guardarLocal();
+                    this.actualizarCumplimiento();
+                },
+
+                actualizarCumplimiento() {
+                    if (datos.diaActual === null) return;
+                    
+                    const completados = Object.keys(datos.ejerciciosCompletados).length;
+                    let totalEjercicios = 0;
+                    
+                    datos.grupoActual.forEach(grupo => {
+                        const rutina = EJERCICIOS_PROFESIONALES[grupo];
+                        if (rutina) totalEjercicios += rutina.ejercicios.length;
+                    });
+
+                    const porcentaje = totalEjercicios > 0 ? Math.round((completados / totalEjercicios) * 100) : 0;
+                    document.getElementById('cumplimiento-txt').innerHTML = `${porcentaje}% completado`;
+                    document.getElementById('cumplimiento-bar').style.width = porcentaje + '%';
+
+                    if (porcentaje === 100) {
+                        const frase = FRASES_MOTIVACIONALES[Math.floor(Math.random() * FRASES_MOTIVACIONALES.length)];
+                        document.getElementById('motivacional').innerHTML = `<div class="motivational-banner">${frase}</div>`;
+                    } else {
+                        document.getElementById('motivacional').innerHTML = '';
+                    }
+                },
+
+                mostrarDieta() {
+                    const config = MACROS_BY_OBJETIVO[datos.user.obj];
+                    const tipoTexto = datos.user.obj === 'perder' ? '🔴 PLAN PÉRDIDA DE GRASA' : datos.user.obj === 'ganar' ? '💪 PLAN GANANCIA MUSCULAR' : '⚖️ PLAN MANTENIMIENTO';
+                    
+                    let html = `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px;">
+                        <div>
+                            <strong>${tipoTexto}</strong><br><span style="font-size: 11px; color: var(--text-muted);">
+                                Proteína total: ${datos.user.proteina}g | Carbos: ${datos.user.carbos}g | Grasas: ${datos.user.grasas}g<br>
+                                Energía diaria: ${datos.user.kcal} kcal
+                            </span>
+                        </div>
+                        <div>
+                            <label style="font-size: 11px; color: var(--accent); font-weight: 700; display: block; margin-bottom: 5px;">Tipo de plan:</label>
+                            <select id="selectDietaTipo" onchange="coachApp.cambiarTipoDieta(this.value)" style="padding: 8px; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--border); border-radius: 6px; color: var(--text-light); font-weight: 600;">
+                                <option value="economica" ${datos.user.dietaTipo === 'economica' ? 'selected' : ''}>💰 Económica</option>
+                                <option value="estandar" ${datos.user.dietaTipo === 'estandar' ? 'selected' : ''}>⭐ Estándar</option>
+                                <option value="premium" ${datos.user.dietaTipo === 'premium' ? 'selected' : ''}>✨ Premium</option>
+                            </select>
+                        </div>
+                    </div>`;
+                    
+                    document.getElementById('dieta-tipo').innerHTML = html;
+
+                    html = '';
+                    const alimentos = ALIMENTOS_POR_DIETA[datos.user.dietaTipo];
+                    const comidas = [
+                        { tipo: 'desayuno', titulo: '🌅 DESAYUNO', alimentos: alimentos.desayuno },
+                        { tipo: 'colacion1', titulo: '🥜 COLACIÓN MAÑANA', alimentos: alimentos.colacion1 },
+                        { tipo: 'almuerzo', titulo: '🍽️ COMIDA (Almuerzo)', alimentos: alimentos.almuerzo },
+                        { tipo: 'colacion2', titulo: '🍌 COLACIÓN TARDE', alimentos: alimentos.colacion2 },
+                        { tipo: 'cena', titulo: '🌙 CENA', alimentos: alimentos.cena }
+                    ];
+
+                    comidas.forEach(comida => {
+                        const esColacion = comida.tipo.startsWith('colacion');
+                        
+                        if (esColacion) {
+                            html += `<div class="card" style="background: rgba(139, 92, 246, 0.08);">
+                                <h3>${comida.titulo}</h3>
+                                <p style="font-size: 11px; color: var(--text-muted); margin: 8px 0;">
+                                    <strong>Elige una opción para esta colación:</strong>
+                                </p>
+                                <div style="display: grid; gap: 8px; margin: 10px 0;">`;
+                            
+                            comida.alimentos.forEach((alimento, idx) => {
+                                html += `<button class="meal" onclick="coachApp.seleccionarAlimento('${comida.tipo}', '${alimento.nombre.replace(/'/g, "\\'")}', ${alimento.kcal})">
+                                    <div>
+                                        <strong>${alimento.nombre}</strong><br>
+                                        <span style="font-size: 9px; color: var(--text-muted);">${alimento.detalles}</span>
+                                    </div>
+                                    <div class="meal-cal">${alimento.kcal}cal</div>
+                                </button>`;
+                            });
+                            
+                            html += `</div><div id="colacion_${comida.tipo}" style="margin-top: 10px;"></div></div>`;
+                        } else {
+                            html += `<div class="card">
+                                <h3>${comida.titulo}</h3>
+                                <p style="font-size: 11px; color: var(--text-muted); margin: 8px 0;">
+                                    <strong>Elige una opción para esta comida:</strong>
+                                </p>
+                                <div style="display: grid; gap: 8px; margin: 10px 0;">`;
+                            
+                            comida.alimentos.forEach((alimento, idx) => {
+                                html += `<button class="meal" onclick="coachApp.seleccionarAlimento('${comida.tipo}', '${alimento.nombre.replace(/'/g, "\\'")}', ${alimento.kcal})">
+                                    <div>
+                                        <strong>${alimento.nombre}</strong><br>
+                                        <span style="font-size: 9px; color: var(--text-muted);">${alimento.detalles}</span>
+                                    </div>
+                                    <div class="meal-cal">${alimento.kcal}cal</div>
+                                </button>`;
+                            });
+                            
+                            html += `</div><div id="comida_${comida.tipo}" style="margin-top: 10px;"></div></div>`;
+                        }
+                    });
+
+                    document.getElementById('comidas-mostrado').innerHTML = html;
+                    this.mostrarAlimentosSeleccionados();
+                },
+
+                seleccionarAlimento(tipo, nombre, kcal) {
+                    if (!datos.alimentosSeleccionados) datos.alimentosSeleccionados = {};
+                    datos.alimentosSeleccionados[tipo] = { nombre, kcal };
+                    this.guardarLocal();
+                    this.mostrarAlimentosSeleccionados();
+                    showAlert(`✅ ${nombre} seleccionado\n🔥 ${kcal}cal`);
+                },
+
+                mostrarAlimentosSeleccionados() {
+                    const tipos = ['desayuno', 'colacion1', 'almuerzo', 'colacion2', 'cena'];
+                    
+                    tipos.forEach(tipo => {
+                        const alimento = datos.alimentosSeleccionados?.[tipo];
+                        let html = '';
+                        
+                        if (alimento) {
+                            html = `<div style="margin-top: 10px; padding: 12px; background: rgba(16, 185, 129, 0.15); border-left: 3px solid var(--success); border-radius: 6px; font-size: 11px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong>✅ ${alimento.nombre}</strong><br>
+                                        <span style="color: var(--success); font-weight: 700;">🔥 ${alimento.kcal}cal</span>
+                                    </div>
+                                    <button class="btn btn-danger" style="padding: 4px 8px; font-size: 9px;" onclick="coachApp.removerAlimento('${tipo}')">Cambiar</button>
+                                </div>
+                            </div>`;
+                        }
+                        
+                        const elementId = tipo.startsWith('colacion') ? 'colacion_' + tipo : 'comida_' + tipo;
+                        if (document.getElementById(elementId)) {
+                            document.getElementById(elementId).innerHTML = html;
+                        }
+                    });
+                },
+
+                removerAlimento(tipo) {
+                    if (datos.alimentosSeleccionados) {
+                        delete datos.alimentosSeleccionados[tipo];
+                        this.guardarLocal();
+                        this.mostrarAlimentosSeleccionados();
+                        this.mostrarDieta();
+                    }
+                },
+
+                sugerirGuisado(tipo) {
+                    let lista = 'GUISADOS MEXICANOS:\n\n';
+                    GUISADOS_MEXICO.forEach((g, i) => {
+                        lista += (i+1) + '. ' + g.nombre + ' (' + g.cals + 'cal | P:' + g.proteina + 'g)\n';
+                    });
+                    
+                    const resp = getPrompt(lista);
+                    if (!resp) return;
+
+                    const idx = parseInt(resp) - 1;
+                    if (GUISADOS_MEXICO[idx]) {
+                        const guisado = GUISADOS_MEXICO[idx];
+                        let totalCal = guisado.cals;
+                        const colacion = datos.colacionSeleccionada[tipo];
+                        
+                        if (colacion) {
+                            totalCal += COLACIONES[colacion] || 0;
+                        }
+
+                        if (totalCal > 650) {
+                            const pregunta = getPrompt(
+                                `⚠️ ALERTA NUTRIÓLOGO:\nGuisado (${guisado.cals}cal) + Colación (${COLACIONES[colacion] || 0}cal)\nTotal: ${totalCal}cal\n\nSuperaría el límite. Opciones:\n\n1 = Retirar colación\n2 = Cambiar por guisado más ligero\n3 = Continuar de todos modos`
+                            );
+                            
+                            if (pregunta === '1') {
+                                delete datos.colacionSeleccionada[tipo];
+                            } else if (pregunta === '3') {
+                                showAlert(`⚠️ Recuerda: Exceso de 1200 kcal semanales puede ralentizar tu objetivo`);
+                            } else {
+                                return;
+                            }
+                        }
+
+                        // Guardar guisado
+                        if (!datos.guisadosSeleccionados) datos.guisadosSeleccionados = {};
+                        datos.guisadosSeleccionados[tipo] = guisado;
+                        
+                        this.guardarLocal();
+                        this.mostrarDieta();
+                        showAlert(`✅ ${guisado.nombre} agregado\n🔥 ${guisado.cals}cal | P:${guisado.proteina}g`);
+                    }
+                },
+
+                mostrarColaciones() {
+                    ['colacion1', 'colacion2'].forEach(tipo => {
+                        let html = '';
+                        
+                        if (datos.colacionSeleccionada[tipo]) {
+                            const colacion = datos.colacionSeleccionada[tipo];
+                            const cal = COLACIONES[colacion];
+                            html += `<div style="margin-top: 10px; padding: 12px; background: rgba(16, 185, 129, 0.15); border-left: 3px solid var(--success); border-radius: 6px; font-size: 11px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong>✅ ${colacion}</strong><br>
+                                        <span style="color: var(--success); font-weight: 700;">🔥 ${cal}cal</span>
+                                    </div>
+                                    <button class="btn btn-danger" style="padding: 4px 8px; font-size: 9px;" onclick="coachApp.removerColacion('${tipo}')">Cambiar</button>
+                                </div>
+                            </div>`;
+                            
+                            html += `<div style="margin-top: 10px; font-size: 10px; color: var(--text-muted);">Alternativas:</div>`;
+                            html += `<div class="alt-buttons">`;
+                            Object.keys(COLACIONES).forEach(c => {
+                                if (c !== colacion) {
+                                    html += `<button class="alt-btn" onclick="coachApp.cambiarColacion('${tipo}', '${c}')">${c}</button>`;
+                                }
+                            });
+                            html += `</div>`;
+                        } else {
+                            html += `<button class="btn btn-secondary btn-block" onclick="coachApp.agregarColacion('${tipo}')" style="font-size: 11px; padding: 8px;">
+                                ➕ Agregar colación
+                            </button>`;
+                        }
+                        
+                        document.getElementById('colacion_' + tipo).innerHTML = html;
+                    });
+                },
+
+                agregarColacion(tipo) {
+                    let lista = 'COLACIONES RECOMENDADAS:\n\n';
+                    Object.keys(COLACIONES).forEach((c, i) => {
+                        lista += (i+1) + '. ' + c + ' (' + COLACIONES[c] + 'cal)\n';
+                    });
+                    
+                    const resp = getPrompt(lista);
+                    if (!resp) return;
+
+                    const idx = parseInt(resp) - 1;
+                    const colaciones = Object.keys(COLACIONES);
+                    if (colaciones[idx]) {
+                        datos.colacionSeleccionada[tipo] = colaciones[idx];
+                        this.guardarLocal();
+                        this.mostrarColaciones();
+                        showAlert(`✅ Colación agregada: ${colaciones[idx]}`);
+                    }
+                },
+
+                cambiarColacion(tipo, nueva) {
+                    datos.colacionSeleccionada[tipo] = nueva;
+                    this.guardarLocal();
+                    this.mostrarColaciones();
+                    showAlert(`✅ Colación cambiada a: ${nueva}`);
+                },
+
+                removerColacion(tipo) {
+                    delete datos.colacionSeleccionada[tipo];
+                    this.guardarLocal();
+                    this.mostrarColaciones();
+                },
+
+                cambiarTipoDieta(nuevo) {
+                    datos.user.dietaTipo = nuevo;
+                    this.guardarLocal();
+                    this.mostrarDieta();
+                    const nombres = { economica: '💰 ECONÓMICA', estandar: '⭐ ESTÁNDAR', premium: '✨ PREMIUM' };
+                    showAlert(`✅ Plan cambió a: ${nombres[nuevo]}`);
+                },
+
+                sugerirGuisado(tipo) {
+                    let lista = 'GUISADOS MEXICANOS:\n\n';
+                    GUISADOS_MEXICO.forEach((g, i) => {
+                        lista += (i+1) + '. ' + g.nombre + ' (' + g.cals + 'cal | P:' + g.proteina + 'g)\n';
+                    });
+                    
+                    const resp = getPrompt(lista);
+                    if (!resp) return;
+
+                    const idx = parseInt(resp) - 1;
+                    if (GUISADOS_MEXICO[idx]) {
+                        const guisado = GUISADOS_MEXICO[idx];
+                        this.seleccionarAlimento(tipo, guisado.nombre, guisado.cals);
+                    }
+                },
+
+                abrirCambiarObjetivo() {
+                    const resp = getPrompt('🎯 CAMBIAR OBJETIVO:\n\n1 = Perder grasa 🔴\n2 = Ganar músculo 💪\n3 = Mantenimiento ⚖️');
+                    const map = { '1': 'perder', '2': 'ganar', '3': 'mantener' };
+
+                    if (map[resp]) {
+                        datos.user.obj = map[resp];
+                        this.calcularMacros();
+                        this.guardarLocal();
+                        this.mostrarDieta();
+                        this.mostrarDash();
+                        showAlert('✅ Objetivo actualizado. Tu plan nutricional se adaptó');
+                    }
+                },
+
+                abrirRestaurar() {
+                    if (getConfirm('¿Restaurar plan nutricional a valores originales?')) {
+                        datos.guisadosSeleccionados = {};
+                        datos.colacionSeleccionada = {};
+                        this.guardarLocal();
+                        this.mostrarDieta();
+                        showAlert('✅ Plan restaurado');
+                    }
+                },
+
+                mostrarDash() {
+                    const imc = calcularIMC(datos.user.peso, datos.user.altura);
+                    const falta = Math.abs(datos.user.meta - datos.user.peso).toFixed(1);
+                    const alcanzado = Math.abs(datos.user.peso - datos.user.meta) / Math.abs(datos.user.meta - datos.historialPeso[0].peso) * 100;
+
+                    document.getElementById('s-peso').innerHTML = datos.user.peso;
+                    document.getElementById('s-meta').innerHTML = datos.user.meta;
+                    document.getElementById('s-falta').innerHTML = falta + 'kg';
+                    document.getElementById('s-imc').innerHTML = imc;
+                    
+                    const progreso = Math.max(0, Math.min(100, alcanzado));
+                    document.getElementById('progreso-bar').style.width = progreso + '%';
+                    document.getElementById('porcentaje-txt').innerHTML = Math.round(progreso) + '% del camino';
+
+                    document.getElementById('cal-consumidas').innerHTML = '0';
+                    document.getElementById('cal-max').innerHTML = datos.user.kcal;
+                    document.getElementById('prot-actual').innerHTML = '0';
+                    document.getElementById('prot-max').innerHTML = datos.user.proteina;
+                    document.getElementById('carb-actual').innerHTML = '0';
+                    document.getElementById('carb-max').innerHTML = datos.user.carbos;
+                    document.getElementById('grasa-actual').innerHTML = '0';
+                    document.getElementById('grasa-max').innerHTML = datos.user.grasas;
+
+                    const diasTexto = datos.dias.map(d => DIAS_SHORT[d]).join(', ');
+                    document.getElementById('perfil-txt').innerHTML = `
+                        <strong>${datos.user.nombre}</strong> - ${datos.user.edad} años<br>
+                        ${datos.user.peso}kg → ${datos.user.meta}kg | Altura: ${datos.user.altura}cm<br>
+                        <strong style="color: var(--secondary);">IMC: ${imc}</strong> | Experiencia: ${datos.user.exp}<br>
+                        Objetivo: <strong>${datos.user.obj.toUpperCase()}</strong> | Energía: <strong style="color: var(--secondary);">${datos.user.kcal} kcal</strong><br>
+                        Entrenamientos: <strong style="color: var(--accent);">${diasTexto}</strong>
+                    `;
+
+                    document.getElementById('perfil-aj-txt').innerHTML = document.getElementById('perfil-txt').innerHTML;
+                    this.actualizarCumplimiento();
+                },
+
+                mostrarProgresoPor(periodo) {
+                    datos.periodoProg = periodo;
+                    const hoy = new Date();
+                    let inicio, filtrado = [];
+
+                    switch(periodo) {
+                        case 'hoy':
+                            const hoyStr = hoy.toISOString().split('T')[0];
+                            filtrado = datos.historialPeso.filter(h => h.fecha === hoyStr);
+                            break;
+                        case 'semana':
+                            inicio = new Date(hoy.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            filtrado = datos.historialPeso.filter(h => new Date(h.fecha) >= inicio);
+                            break;
+                        case 'mes':
+                            inicio = new Date(hoy.getTime() - 30 * 24 * 60 * 60 * 1000);
+                            filtrado = datos.historialPeso.filter(h => new Date(h.fecha) >= inicio);
+                            break;
+                        case 'total':
+                            filtrado = datos.historialPeso;
+                            break;
+                    }
+
+                    this.renderizarGrafico(filtrado);
+                },
+
+                renderizarGrafico(datos_filtrados) {
+                    const canvas = document.getElementById('progressChart');
+                    const ctx = canvas.getContext('2d');
+
+                    const labels = datos_filtrados.map(d => {
+                        const fecha = new Date(d.fecha);
+                        return fecha.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
+                    });
+
+                    const pesos = datos_filtrados.map(d => d.peso);
+
+                    if (this.chartInstance) this.chartInstance.destroy();
+
+                    this.chartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Peso (kg)',
+                                data: pesos,
+                                borderColor: '#8b5cf6',
+                                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#06b6d4',
+                                pointBorderColor: '#8b5cf6',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: { labels: { color: '#e2e8f0' } }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    ticks: { color: '#94a3b8' },
+                                    grid: { color: 'rgba(139, 92, 246, 0.1)' }
+                                },
+                                x: {
+                                    ticks: { color: '#94a3b8' },
+                                    grid: { color: 'rgba(139, 92, 246, 0.1)' }
+                                }
+                            }
+                        }
+                    });
+                },
+
+                registrarPesoSemanal() {
+                    const peso = parseFloat(document.getElementById('inPesoSemanal').value);
+                    if (!peso) {
+                        showAlert('⚠️ Ingresa tu peso actual');
+                        return;
+                    }
+
+                    const hoy = new Date().toISOString().split('T')[0];
+                    datos.historialPeso.push({ fecha: hoy, peso: peso });
+                    this.guardarLocal();
+
+                    if (datos.historialPeso.length >= 2) {
+                        const anterior = datos.historialPeso[datos.historialPeso.length - 2];
+                        const cambio = peso - anterior.peso;
+                        let mensaje = `📊 Cambio: ${cambio > 0 ? '+' : ''}${cambio.toFixed(1)}kg\n\n`;
+
+                        if (datos.user.obj === 'ganar') {
+                            if (cambio > 0.75) {
+                                mensaje += '⚠️ Cambio rápido. Revisa estrés, sueño y adherencia';
+                            } else if (cambio > 0.25 && cambio < 0.5) {
+                                mensaje += '✅ Perfecto. Ganancia óptima. Mantén superávit 300 kcal';
+                            } else if (cambio < 0.1 && cambio > -0.1) {
+                                mensaje += '💭 Sin cambios. Aumenta calorías en 100-150 kcal';
+                            }
+                        } else if (datos.user.obj === 'perder') {
+                            if (cambio < -0.75) {
+                                mensaje += '⚠️ Pérdida rápida. Riesgo de pérdida de músculo';
+                            } else if (cambio > -0.5 && cambio < -0.1) {
+                                mensaje += '✅ Excelente. Pérdida sostenible de grasa';
+                            } else if (cambio > -0.05) {
+                                mensaje += '💭 Sin cambios. Aumenta déficit en 100 kcal';
+                            }
+                        }
+
+                        showAlert(mensaje);
+                    }
+
+                    document.getElementById('inPesoSemanal').value = '';
+                    this.mostrarProgresoPor(datos.periodoProg);
+                },
+
+                exportarDatos() {
+                    const datos_export = JSON.stringify(datos, null, 2);
+                    const blob = new Blob([datos_export], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `CoachPro_${datos.user.nombre}_${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    showAlert('✅ Datos exportados');
+                },
+
+                abrirReiniciar() {
+                    if (!getConfirm('⚠️ ¿ESTÁS SEGURO?\nEsto borrará TODOS tus datos')) return;
+                    if (!getConfirm('🔴 CONFIRMACIÓN FINAL\n¿Deseas reiniciar?')) return;
+
+                    localStorage.clear();
+                    location.reload();
+                },
+
+                cambiarPag(nombre, idx) {
+                    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                    document.getElementById(nombre).classList.add('active');
+                    document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+                },
+
+                guardarLocal() {
+                    localStorage.setItem('coach_user', JSON.stringify(datos.user));
+                    localStorage.setItem('coach_dias', JSON.stringify(datos.dias));
+                    localStorage.setItem('coach_rutinasAlternativas', JSON.stringify(datos.rutinasAlternativas));
+                    localStorage.setItem('coach_ejerciciosCompletados', JSON.stringify(datos.ejerciciosCompletados));
+                    localStorage.setItem('coach_colacionSeleccionada', JSON.stringify(datos.colacionSeleccionada));
+                    localStorage.setItem('coach_historialPeso', JSON.stringify(datos.historialPeso));
+                    localStorage.setItem('coach_pesosPorEjercicio', JSON.stringify(datos.pesosPorEjercicio));
+                    localStorage.setItem('coach_seriesPorEjercicio', JSON.stringify(datos.seriesPorEjercicio || {}));
+                    localStorage.setItem('coach_guisadosSeleccionados', JSON.stringify(datos.guisadosSeleccionados || {}));
+                    localStorage.setItem('coach_alimentosSeleccionados', JSON.stringify(datos.alimentosSeleccionados || {}));
+                }
+            };
+        })();
+
+        // ============ INICIALIZACIÓN ============
+        if (typeof window !== 'undefined') {
+            window.addEventListener('load', function() {
+                const u = localStorage.getItem('coach_user');
+                if (u) {
+                    datos.user = JSON.parse(u);
+                    datos.dias = JSON.parse(localStorage.getItem('coach_dias') || '[]');
+                    datos.rutinasAlternativas = JSON.parse(localStorage.getItem('coach_rutinasAlternativas') || '{}');
+                    datos.ejerciciosCompletados = JSON.parse(localStorage.getItem('coach_ejerciciosCompletados') || '{}');
+                    datos.colacionSeleccionada = JSON.parse(localStorage.getItem('coach_colacionSeleccionada') || '{}');
+                    datos.alimentosSeleccionados = JSON.parse(localStorage.getItem('coach_alimentosSeleccionados') || '{}');
+                    datos.historialPeso = JSON.parse(localStorage.getItem('coach_historialPeso') || '[]');
+                    datos.pesosPorEjercicio = JSON.parse(localStorage.getItem('coach_pesosPorEjercicio') || '{}');
+                    datos.seriesPorEjercicio = JSON.parse(localStorage.getItem('coach_seriesPorEjercicio') || '{}');
+                    datos.guisadosSeleccionados = JSON.parse(localStorage.getItem('coach_guisadosSeleccionados') || '{}');
+
+                    document.getElementById('inicio').classList.remove('active');
+                    document.getElementById('dash').classList.add('active');
+                    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+
+                    coachApp.mostrarDash();
+                    coachApp.mostrarRutinas();
+                    coachApp.mostrarDieta();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
